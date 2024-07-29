@@ -37,10 +37,3 @@ This is the server-side component of the MovieReview application, built using Ja
 
 Ensure your MongoDB connection details are properly set in the `application.properties` or `application.yml` file.
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-[Add your chosen license here]
