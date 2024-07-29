@@ -1,72 +1,70 @@
 # MovieReview
 
-MovieReview is a web application that allows users to browse, review, and rate movies. It provides a platform for movie enthusiasts to share their opinions and discover new films.
-
-## Features
-
-- User authentication and authorization
-- Browse and search for movies
-- View detailed movie information
-- Write and read movie reviews
-- Rate movies
-
-
-
-## Technology Stack
-
-- Backend: Java with Spring Boot
-- Frontend: React
-- Database: MongoDB
-- Authentication: Spring Security
-- API: RESTful API using Spring Web
+MovieReview is a full-stack application for reviewing and exploring movies. It consists of a server-side component and a client-side React application.
 
 ## Project Structure
 
 The project is divided into two main parts:
 
-1. Backend (Java + Spring Boot)
-   - `src/main/java`: Contains Java source code
-   - `src/main/resources`: Contains application properties and static resources
-   - `src/test`: Contains unit and integration tests
+1. Movie-server: The backend server component
+2. Movie-client: The frontend React application
 
-2. Frontend (React)
-   - `src`: Contains React components, styles, and assets
-   - `public`: Contains the main HTML file and other static assets
+### Movie-server
 
-## Setup and Installation
+The server-side component of the MovieReview application. It handles data management, API endpoints, and business logic.
 
-### Backend
+### Movie-client
 
-1. Ensure you have Java JDK 11 or later installed
-2. Install MongoDB and make sure it's running
-3. Clone the repository
-4. Navigate to the backend directory
-5. Run `./mvnw spring-boot:run` (or `mvnw.cmd spring-boot:run` on Windows)
+The client-side of the MovieReview application is built using React and was bootstrapped with Create React App. It's located in the `Movie-client/movie-gold-v1` directory.
 
-### Frontend
+## Getting Started
 
-1. Ensure you have Node.js and npm installed
-2. Navigate to the frontend directory
-3. Run `npm install` to install dependencies
-4. Run `npm start` to start the development server
+### Setting up the Server
 
-## API Endpoints
+1. Navigate to the `Movie-server` directory
+2. Follow the instructions in the server's README.md file to set up and run the server
 
-The backend provides a RESTful API for interacting with movies and reviews. Key endpoints include:
+### Setting up the Client
 
-- `GET /api/movies`: List all movies
-- `POST /api/movies`: Create a new movie
-- `GET /api/movies/{id}`: Retrieve a specific movie
-- `PUT /api/movies/{id}`: Update a specific movie
-- `DELETE /api/movies/{id}`: Delete a specific movie
-- `GET /api/reviews`: List all reviews
-- `POST /api/reviews`: Create a new review
-- `GET /api/reviews/{id}`: Retrieve a specific review
-- `PUT /api/reviews/{id}`: Update a specific review
-- `DELETE /api/reviews/{id}`: Delete a specific review
+1. Navigate to the `Movie-client/movie-gold-v1` directory
+2. Run `npm install` to install dependencies
+3. Use `npm start` to run the app in development mode
+4. Open [http://localhost:3000](http://localhost:3000) to view it in your browser
 
-## Testing
+## Available Scripts (Client)
 
-### Backend
-The backend includes unit and integration tests. Run tests using:
+In the client project directory, you can run:
 
+- `npm start`: Runs the app in development mode
+- `npm test`: Launches the test runner
+- `npm run build`: Builds the app for production
+- `npm run eject`: Ejects from Create React App (one-way operation)
+
+## Learn More
+
+To learn more about the technologies used in this project:
+
+- [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started)
+- [React documentation](https://reactjs.org/)
+
+## Advanced Topics
+
+- Code Splitting
+- Analyzing Bundle Size
+- Making a Progressive Web App
+- Advanced Configuration
+- Deployment
+
+For more information on these topics, refer to the Create React App documentation.
+
+## Troubleshooting
+
+If you encounter issues with `npm run build` failing to minify, check the [troubleshooting section](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify) in the Create React App documentation.
+
+## Contributing
+
+We welcome contributions to the MovieReview project. Please refer to the CONTRIBUTING.md file (if available) or contact the project maintainers for guidelines on how to contribute.
+
+## License
+
+This project is licensed under [LICENSE NAME]. See the LICENSE file for details.
