@@ -61,10 +61,3 @@ For more information on these topics, refer to the Create React App documentatio
 
 If you encounter issues with `npm run build` failing to minify, check the [troubleshooting section](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify) in the Create React App documentation.
 
-## Contributing
-
-We welcome contributions to the MovieReview project. Please refer to the CONTRIBUTING.md file (if available) or contact the project maintainers for guidelines on how to contribute.
-
-## License
-
-This project is licensed under [LICENSE NAME]. See the LICENSE file for details.
