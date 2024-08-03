@@ -1,4 +1,4 @@
-package com.example.Movies;
+package com.example.Movies.controller;
 
 import java.util.Map;
 
@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.Movies.model.Reviews;
+import com.example.Movies.service.ReviewsService;
 
 
 @RestController
