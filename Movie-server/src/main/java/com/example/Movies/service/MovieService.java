@@ -19,5 +19,21 @@ public class MovieService {
     public Optional<Movies> singlMovie(String imdbId){
         return movieRepo.findByImdbId(imdbId);
     }
+    public Movies updateMovie(String imdbId, Movies updatedMovie) {
+        Optional<Movies> existingMovie = movieRepo.findByImdbId(imdbId);
+        if (existingMovie.isPresent()) {
+            Movies movieToUpdate = existingMovie.get();
+            movieToUpdate.setTitle(updatedMovie.getTitle());
+            movieToUpdate.setReleaseDate(updatedMovie.getReleaseDate());
+            movieToUpdate.setTrailerLink(updatedMovie.getTrailerLink());
+            movieToUpdate.setGenres(updatedMovie.getGenres());
+            movieToUpdate.setPoster(updatedMovie.getPoster());
+            movieToUpdate.setBackdrops(updatedMovie.getBackdrops());
+            movieToUpdate.setReviewIds(updatedMovie.getReviewIds());
+            
+            return movieRepo.save(movieToUpdate);
+        }
+        return null;
+    }
 
 }
