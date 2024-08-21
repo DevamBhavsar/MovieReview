@@ -33,40 +33,40 @@ function App({ mode, colorMode }) {
 
   const getMovies = async () => {
     try {
-      const token = localStorage.getItem("jwtToken");
-      console.log("Token in main component:", token);
-      if (token) {
-        const response = await api.get("/api/v1/movies");
-        setMovies(response.data);
-      } else {
-        localStorage.removeItem("jwtToken");
-        console.log("No token found, redirecting to login");
-        navigate("/login");
-      }
+      // const token = localStorage.getItem("jwtToken");
+      // console.log("Token in main component:", token);
+      // if (token) {
+      const response = await api.get("/api/v1/movies");
+      setMovies(response.data);
+      // } else {
+      //   localStorage.removeItem("jwtToken");
+      //   console.log("No token found, redirecting to login");
+      //   navigate("/login");
+      // }
     } catch (err) {
       console.log(err);
-      if (err.response && err.response.status === 401) {
-        console.log("Unauthorized access, redirecting to login");
-        navigate("/login");
-      }
+      // if (err.response && err.response.status === 401) {
+      //   console.log("Unauthorized access, redirecting to login");
+      //   navigate("/login");
+      // }
     }
   };
 
   const getMovieData = async (movieId) => {
     try {
-      if (isLoggedIn()) {
-        const response = await api.get(`/api/v1/movies/${movieId}`);
-        const singleMovie = response.data;
-        setMovie(singleMovie);
-        setReviews(singleMovie.reviews);
-      } else {
-        navigate("/login");
-      }
+      // if (isLoggedIn()) {
+      const response = await api.get(`/api/v1/movies/${movieId}`);
+      const singleMovie = response.data;
+      setMovie(singleMovie);
+      setReviews(singleMovie.reviews);
+      // } else {
+      //   navigate("/login");
+      // }
     } catch (error) {
       console.error(error);
-      if (error.response && error.response.status === 401) {
-        navigate("/login");
-      }
+      // if (error.response && error.response.status === 401) {
+      //   navigate("/login");
+      // }
     }
   };
 
