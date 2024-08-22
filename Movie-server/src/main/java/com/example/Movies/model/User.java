@@ -7,13 +7,25 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Document(collection = "users")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class User {
   @Id
+  @GeneratedValue
   private String id;
 
   @NotBlank
@@ -31,10 +43,8 @@ public class User {
   private String password;
 
   @DBRef
+  @Builder.Default
   private Set<Role> roles = new HashSet<>();
-
-  public User() {
-  }
 
   public User(String username, String email, String password) {
     this.username = username;

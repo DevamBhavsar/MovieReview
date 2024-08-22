@@ -9,7 +9,7 @@ import MovieFormCard from "./components/test/test";
 import { ThemeProvider, createTheme } from "@mui/material";
 import DosisFont from "../Fonts/Dosis/Dosis-VariableFont_wght.ttf";
 import LogIn from "./components/login/Login";
-import ToggleColorMode from "./components/themeToggle/ThemeToggle";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const getDesignTokens = (mode) => ({
   palette: {
@@ -61,7 +61,11 @@ function ThemedApp() {
           <Route path="/login" element={<LogIn />} />
           <Route
             path="/tests"
-            element={<MovieFormCard colorMode={colorMode} mode={mode} />}
+            element={
+              <ProtectedRoute>
+                <MovieFormCard colorMode={colorMode} mode={mode} />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </BrowserRouter>

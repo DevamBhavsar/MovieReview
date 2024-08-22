@@ -1,17 +1,23 @@
-import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { registerUser } from "../../api/api";
+import React, { useState, useEffect } from "react";
+import { registerUser, getRoles } from "../../api/api";
 import { useNavigate } from "react-router-dom";
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Link,
+  Box,
+  Typography,
+  Container,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 function Copyright(props) {
   return (
@@ -33,8 +39,21 @@ function Copyright(props) {
 
 export default function SignUp() {
   const navigate = useNavigate();
-  // const theme = useTheme();
-  // console.log(theme);
+  const [roles, setRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState("");
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const rolesData = await getRoles();
+        setRoles(rolesData);
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      }
+    };
+    fetchRoles();
+  }, []);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -42,23 +61,16 @@ export default function SignUp() {
       username: data.get("username"),
       email: data.get("email"),
       password: data.get("password"),
-      roles: ["user"],
+      roles: [selectedRole],
     };
 
     try {
       const response = await registerUser(userData);
       console.log("Registration successful:", response);
       navigate("/");
-      // Handle successful registration (e.g., redirect to login page)
     } catch (error) {
       console.error("Registration failed:", error);
-      // Handle registration error (e.g., display error message)
     }
-    console.log({
-      username: data.get("username"),
-      email: data.get("email"),
-      password: data.get("password"),
-    });
   };
 
   return (
@@ -128,6 +140,22 @@ export default function SignUp() {
             id="password"
             autoComplete="new-password"
           />
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="role-select-label">Role</InputLabel>
+            <Select
+              labelId="role-select-label"
+              id="role-select"
+              value={selectedRole}
+              label="Role"
+              onChange={(e) => setSelectedRole(e.target.value)}
+            >
+              {roles.map((role) => (
+                <MenuItem key={role} value={role}>
+                  {role}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <FormControlLabel
             control={<Checkbox value="allowExtraEmails" color="primary" />}
             label="I want to receive inspiration, marketing promotions and updates via email."

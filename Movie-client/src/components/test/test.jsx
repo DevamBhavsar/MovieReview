@@ -29,15 +29,19 @@ export default function MovieFormCard({ mode, colorMode }) {
 
   useEffect(() => {
     const fetchMovies = async () => {
-      try {
-        const data = await getAllMovies();
-        setMovies(data);
-        if (data.length > 0) {
-          setSelectedMovie(data[0]);
+      if (isLoggedIn()) {
+        try {
+          const data = await getAllMovies();
+          setMovies(data);
+          if (data.length > 0) {
+            setSelectedMovie(data[0]);
+          }
+          console.log("Fetched movies:", data);
+        } catch (error) {
+          console.error("Error fetching movie data:", error);
         }
-        console.log("Fetched movies:", data);
-      } catch (error) {
-        console.error("Error fetching movie data:", error);
+      } else {
+        navigate("/login");
       }
     };
     fetchMovies();

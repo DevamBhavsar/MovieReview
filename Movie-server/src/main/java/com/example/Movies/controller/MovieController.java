@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,19 +26,19 @@ public class MovieController {
     @Autowired
     private MovieService movieService;
 
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<Movies>> getAllMovies() {
         return new ResponseEntity<List<Movies>>( movieService.allMovies(),HttpStatus.OK);
     }
 
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/{imdbId}")
     public ResponseEntity<Optional<Movies>> getSingleMovie(@PathVariable String imdbId) {
         return new ResponseEntity<Optional<Movies>>(movieService.singlMovie(imdbId), HttpStatus.OK);
     }
 
-    // @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/{imdbId}")
     public ResponseEntity<Movies> updateMovie(@PathVariable String imdbId, @RequestBody Movies updateMovies) {
         Movies movie = movieService.updateMovie(imdbId, updateMovies);

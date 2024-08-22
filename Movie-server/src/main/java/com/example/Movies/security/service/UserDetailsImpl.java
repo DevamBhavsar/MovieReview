@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.example.Movies.model.Role;
 import com.example.Movies.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -37,8 +39,17 @@ public class UserDetailsImpl implements UserDetails {
 
 	public static UserDetailsImpl build(User user) {
 		List<GrantedAuthority> authorities = user.getRoles().stream()
-				.map(role -> new SimpleGrantedAuthority(role.getName().name()))
-				.collect(Collectors.toList());
+			.map(role -> {
+				if (role instanceof DBRef) {
+					DBRef dbRef = (DBRef) role;
+					return new SimpleGrantedAuthority("ROLE_" + dbRef.toString().toUpperCase());
+				} else if (role instanceof Role) {
+					Role roleObj = (Role) role;
+					return new SimpleGrantedAuthority(roleObj.getName().name());
+				}
+				return new SimpleGrantedAuthority("ROLE_USER");
+			})
+			.collect(Collectors.toList());
 
 		return new UserDetailsImpl(
 				user.getId(), 
