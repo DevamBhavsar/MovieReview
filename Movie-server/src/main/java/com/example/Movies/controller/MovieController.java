@@ -21,24 +21,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/v1/movies")
+@RequestMapping("/movies")
 public class MovieController {
     @Autowired
     private MovieService movieService;
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    // @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping
     public ResponseEntity<List<Movies>> getAllMovies() {
         return new ResponseEntity<List<Movies>>( movieService.allMovies(),HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    // @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping("/{imdbId}")
     public ResponseEntity<Optional<Movies>> getSingleMovie(@PathVariable String imdbId) {
         return new ResponseEntity<Optional<Movies>>(movieService.singlMovie(imdbId), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    // @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping("/{imdbId}")
     public ResponseEntity<Movies> updateMovie(@PathVariable String imdbId, @RequestBody Movies updateMovies) {
         Movies movie = movieService.updateMovie(imdbId, updateMovies);

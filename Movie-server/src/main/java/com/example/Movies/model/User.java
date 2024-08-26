@@ -1,16 +1,29 @@
 package com.example.Movies.model;
 
+import java.security.Principal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,25 +35,38 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class User {
+public class User implements UserDetails, Principal {
   @Id
-  @GeneratedValue
   private String id;
 
   @NotBlank
   @Size(max = 20)
+  @Indexed(unique = true)
   private String username;
 
-  
   @NotBlank
   @Size(max = 50)
   @Email
+  @Indexed(unique = true)
   private String email;
 
   @NotBlank
   @Size(max = 120)
+  @JsonIgnore
   private String password;
+
+  private Boolean enabled;
+  private Boolean accountLocked;
+
+  @CreatedDate
+  @NotNull
+  @Field(write = Field.Write.ALWAYS)
+  private Instant createdDate;
+
+  @LastModifiedDate
+  @NotNull
+  @Field(write = Field.Write.NON_NULL)
+  private LocalDateTime lastUpdatedDate;
 
   @DBRef
   @Builder.Default
@@ -52,43 +78,33 @@ public class User {
     this.password = password;
   }
 
-  public String getId() {
-    return id;
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return this.roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toSet());
   }
 
-  public void setId(String id) {
-    this.id = id;
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
   }
 
-  public String getUsername() {
-    return username;
+  @Override
+  public boolean isAccountNonLocked() {
+    return !accountLocked;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
   }
 
-  public String getEmail() {
+  @Override
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  @Override
+  public String getName() {
     return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public Set<Role> getRoles() {
-    return roles;
-  }
-
-  public void setRoles(Set<Role> roles) {
-    this.roles = roles;
   }
 }

@@ -15,7 +15,7 @@ import com.example.Movies.service.ReviewsService;
 
 
 @RestController
-@RequestMapping("/api/v1/reviews")
+@RequestMapping("/reviews")
 public class ReviewsController {
     @Autowired
     private ReviewsService reviewsService;

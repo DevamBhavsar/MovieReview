@@ -1,20 +1,57 @@
 package com.example.Movies.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "roles")
 public class Role {
   @Id
   private String id;
-  private ERole name;
+  @Indexed(unique = true)
+  private String name;
 
-  public Role() {
-  }
+  @CreatedDate
+  @NotNull
+  @Field(write = Field.Write.ALWAYS)
+  private Instant createdDate;
 
-  public Role(ERole name) {
-      this.name = name;
-  }
+  @LastModifiedDate
+  @NotNull
+  @Field(write = Field.Write.NON_NULL)
+  private LocalDateTime lastUpdatedDate;
+    
+  @DBRef
+  @Builder.Default
+  @JsonIgnore
+  private Set<User> users = new HashSet<>();
+
+//   public Role() {
+//   }
+
 
   public String getId() {
       return id;
@@ -24,11 +61,8 @@ public class Role {
       this.id = id;
   }
 
-  public ERole getName() {
-      return name;
-  }
 
-  public void setName(ERole name) {
+  public void setName(String name) {
       this.name = name;
   }
 }

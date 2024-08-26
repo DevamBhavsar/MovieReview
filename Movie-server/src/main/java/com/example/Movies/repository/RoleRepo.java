@@ -4,12 +4,11 @@ import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import com.example.Movies.model.ERole;
 import com.example.Movies.model.Role;
 
 
 public interface RoleRepo extends MongoRepository<Role, String> {
-    Optional<Role>  findByName(ERole name);
+    Optional<Role>  findByName(String name);
     
 
 }
