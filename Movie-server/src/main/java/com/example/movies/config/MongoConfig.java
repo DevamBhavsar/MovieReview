@@ -13,7 +13,7 @@ import com.example.movies.security.SpringSecurityAuditorAware;
 
 @Configuration
 @EnableMongoRepositories(basePackages = "com.example.movies.repository")
-@EnableMongoAuditing(auditorAwareRef = "auditorProvider")
+@EnableMongoAuditing(auditorAwareRef="auditorAware")
 public class MongoConfig {
 
     @Bean

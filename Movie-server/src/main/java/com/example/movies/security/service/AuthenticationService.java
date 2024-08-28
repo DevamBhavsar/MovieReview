@@ -48,21 +48,19 @@ public class AuthenticationService {
     // Register a new user
     public void registerUser(SignupRequest signUpRequest) throws MessagingException {
         // Find the USER role
-        var userRole = roleRepository.findByName("USER").orElseThrow(() -> new IllegalStateException("Role USER not found"));
-        
+        var userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new IllegalStateException("Role USER not found"));
+
         // Create a new user with encoded password
-        var user = User.builder()
-                .username(signUpRequest.getUsername())
-                .email(signUpRequest.getEmail())
-                .password(passwordEncoder.encode(signUpRequest.getPassword()))
-                .accountLocked(false)
-                .enabled(false)
-                .roles(Set.of(userRole))
-                .build();
-        
+        var user
+                = User.builder().username(signUpRequest.getUsername()).email(signUpRequest.getEmail())
+                        .password(passwordEncoder.encode(signUpRequest.getPassword()))
+                        .accountLocked(false).enabled(false)
+                        .roles(Set.of(userRole)).build();
+
         // Save the user
         userRepository.save(user);
-        
+
         // Send validation email
         try {
             sendValidationEmail(user);
@@ -71,24 +69,20 @@ public class AuthenticationService {
             log.error("Failed to send validation email for user: {}", user.getUsername(), e);
         }
     }
-    
 
     // Send validation email to the user
     private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
-        emailService.sendEmail(user.getEmail(), user.getUsername(), EmailTemplateName.ACTIVATE_ACCOUNT, activationUrl,
+        emailService.sendEmail(user.getEmail(), user.getUsername(),
+                EmailTemplateName.ACTIVATE_ACCOUNT, activationUrl,
                 newToken, "Account Activation");
     }
 
     // Generate and save activation token for the user
     private String generateAndSaveActivationToken(User user) {
         String generatedToken = generateActivationCode(6);
-        var token = Token.builder()
-                .token(generatedToken)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
-                .user(user)
-                .build();
+        var token = Token.builder().token(generatedToken).createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(15)).user(user).build();
         tokenRepository.save(token);
         return generatedToken;
     }
@@ -107,11 +101,13 @@ public class AuthenticationService {
     }
 
     public LoginResponse login(@Valid LoginRequest request) {
-        var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        var auth = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),
+                        request.getPassword()));
         var claims = new HashMap<String, Object>();
         var user = ((User) auth.getPrincipal());
         claims.put("username", user.getUsername());
-        var jwtToken = jwtService.generateToken(claims,user);
+        var jwtToken = jwtService.generateToken(claims, user);
         return LoginResponse.builder().token(jwtToken).build();
     }
 
@@ -122,7 +118,7 @@ public class AuthenticationService {
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
             sendValidationEmail(savedToken.getUser());
             throw new RuntimeException("Activation Token expired. New token sent to email");
-        }   
+        }
         var user = userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setEnabled(true);

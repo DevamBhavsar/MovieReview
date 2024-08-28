@@ -1,22 +1,32 @@
 package com.example.movies.model;
 
-import org.bson.types.ObjectId;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-import lombok.AllArgsConstructor;
+import com.example.movies.common.BaseEntity;
+
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@Document(collection="reviews")
+@Document(collection = "reviews")
 @Data
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class Reviews {
-    @Id
-    private ObjectId id;
+public class Reviews extends BaseEntity {
+    @NotBlank(message = "Review body cannot be blank")
     private String body;
-    public Reviews (String body ){
+
+    @DocumentReference(lazy = true)
+    private Movies movie;
+    
+    @DocumentReference(lazy = true)
+    private User user;
+
+    public Reviews(String body, Movies movie, User user) {
         this.body = body;
-    } 
+        this.movie = movie;
+        this.user = user;
+    }
 }

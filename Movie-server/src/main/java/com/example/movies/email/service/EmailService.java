@@ -30,7 +30,7 @@ public class EmailService {
     @Value("${spring.mail.sender}")
     private String sender;
 
-    // @Async
+    @Async
     public void sendEmail(String to,String username,EmailTemplateName emailTemplate,String confirmationUrl,String activationCode,String subject) throws MessagingException {
         // Create a MimeMessage
         log.info("Attempting to send email to: {}", to);

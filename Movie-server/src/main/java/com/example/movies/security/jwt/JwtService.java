@@ -17,6 +17,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import com.example.movies.model.User;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class JwtService {
     @Value("${spring.application.security.jwt.jwtSecret}")
     private String secretKey;
 
-    public  String extractUsername(String token) {
+    public  String extractEmail(String token) {
         return extractClaims(token, Claims::getSubject);
     }
 
@@ -51,10 +52,9 @@ public class JwtService {
     }
     private String buildToken(Map<String, Object> claims, UserDetails userDetails, long jwtExpiration) {
         var authorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-
         return Jwts.builder()
                 .claims(claims)
-                .subject(userDetails.getUsername())
+                .subject(((User) userDetails).getEmail()) // Cast to User and get email
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .claim("authorities", authorities)
@@ -67,8 +67,8 @@ public class JwtService {
     }
 
     public Boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final String email = extractEmail(token);
+        return (email.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token) {
