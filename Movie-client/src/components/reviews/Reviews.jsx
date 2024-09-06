@@ -1,10 +1,12 @@
+import { Box, Container, Divider, Grid, Typography } from "@mui/material";
+import PropTypes from "prop-types";
 import { useEffect, useRef } from "react";
-import api from "../../api/api";
 import { useParams } from "react-router-dom";
-import { Container, Row, Col } from "react-bootstrap";
+import {
+  MovieControllerService,
+  ReviewControllerService,
+} from "../../api-client";
 import ReviewForm from "../reviewForm/ReviewForm";
-
-import React from "react";
 
 const Reviews = ({ getMovieData, movie, reviews = [], setReviews }) => {
   const revText = useRef();
@@ -12,8 +14,17 @@ const Reviews = ({ getMovieData, movie, reviews = [], setReviews }) => {
   const movieId = params.movieId;
 
   useEffect(() => {
-    getMovieData(movieId);
-  }, []);
+    const fetchMovie = async () => {
+      try {
+        const response = await MovieControllerService.getMovieByImdbId(movieId);
+        getMovieData(response);
+      } catch (error) {
+        console.error("Error fetching movie:", error);
+      }
+    };
+
+    fetchMovie();
+  }, [movieId, getMovieData]);
 
   const addReview = async (e) => {
     e.preventDefault();
@@ -21,9 +32,9 @@ const Reviews = ({ getMovieData, movie, reviews = [], setReviews }) => {
     const rev = revText.current;
 
     try {
-      const response = await api.post("/api/v1/reviews", {
-        reviewBody: rev.value,
-        imdbId: movieId,
+      await ReviewControllerService.createReview({
+        body: rev.value,
+        movie: { imdbId: movieId },
       });
 
       const updatedReviews = Array.isArray(reviews)
@@ -40,57 +51,44 @@ const Reviews = ({ getMovieData, movie, reviews = [], setReviews }) => {
 
   return (
     <Container>
-      <Row>
-        <Col>
-          <h3>Reviews</h3>
-        </Col>
-      </Row>
-      <Row className="mt-2">
-        <Col>
-          <img src={movie?.poster} alt="" />
-        </Col>
-        <Col>
-          {
-            <>
-              <Row>
-                <Col>
-                  <ReviewForm
-                    handleSubmit={addReview}
-                    revText={revText}
-                    labelText="Write a Review?"
-                  />
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <hr />
-                </Col>
-              </Row>
-            </>
-          }
-          {reviews?.map((r) => {
-            return (
-              <>
-                <Row>
-                  <Col>{r.body}</Col>
-                </Row>
-                <Row>
-                  <Col>
-                    <hr />
-                  </Col>
-                </Row>
-              </>
-            );
-          })}
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <hr />
-        </Col>
-      </Row>
+      <Typography variant="h4" gutterBottom>
+        Reviews
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={4}>
+          <Box
+            component="img"
+            src={movie?.poster}
+            alt=""
+            sx={{ width: "100%" }}
+          />
+        </Grid>
+        <Grid item xs={12} md={8}>
+          <ReviewForm
+            handleSubmit={addReview}
+            revText={revText}
+            labelText="Write a Review?"
+          />
+          <Divider sx={{ my: 2 }} />
+          {reviews?.map((r) => (
+            <Box key={r.id}>
+              <Typography>{r.body}</Typography>
+              <Divider sx={{ my: 2 }} />
+            </Box>
+          ))}
+        </Grid>
+      </Grid>
     </Container>
   );
+};
+
+Reviews.propTypes = {
+  getMovieData: PropTypes.func.isRequired,
+  movie: PropTypes.shape({
+    poster: PropTypes.string,
+  }),
+  reviews: PropTypes.array,
+  setReviews: PropTypes.func.isRequired,
 };
 
 export default Reviews;

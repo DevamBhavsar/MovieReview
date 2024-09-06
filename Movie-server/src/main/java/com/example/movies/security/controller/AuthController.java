@@ -31,7 +31,8 @@ public class AuthController {
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws MessagingException {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest)
+            throws MessagingException {
         log.info("Received signup request for user: {}", signUpRequest.getUsername());
         authservice.registerUser(signUpRequest);
         log.info("User registration completed for: {}", signUpRequest.getUsername());
@@ -40,12 +41,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
+        log.debug("Received login request: {}", request);
         return ResponseEntity.ok(authservice.login(request));
     }
+
 
     @GetMapping("/activate-account")
     public void confirm(@RequestParam String token) throws MessagingException {
         authservice.activateAccount(token);
     }
-    
+
 }

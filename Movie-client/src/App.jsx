@@ -1,102 +1,99 @@
+import PropTypes from "prop-types";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, Route, Routes, useNavigate } from "react-router-dom";
+import { MovieControllerService } from "./api-client/services/MovieControllerService";
+import TokenService from "./api-client/token/tokenService";
 import "./App.css";
-import api from "./api/api";
-import { useState, useEffect } from "react";
-import Layout from "./components/Layout";
-import { Routes, Route, useNavigate } from "react-router-dom";
-import Home from "./components/home/Home";
+import ActivateAccount from "./components/activateAccount/ActivateAccount";
 import Header from "./components/header/Header";
-import Trailer from "./components/trailer/Trailer";
-import Reviews from "./components/reviews/Reviews";
+import Home from "./components/home/Home";
 import NotFound from "./components/notFound/NotFound";
-import { isLoggedIn } from "./api/api";
-
-function App({ mode, colorMode }) {
-  const [movies, setMovies] = useState();
-  const [movie, setMovie] = useState();
+import Reviews from "./components/reviews/Reviews";
+import Trailer from "./components/trailer/Trailer";
+function App({ mode, toggleColorMode }) {
+  const [movies, setMovies] = useState([]);
+  const [movie, setMovie] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const tokenService = useMemo(() => new TokenService(), []);
 
-  const isTokenExpired = (token) => {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join("")
-    );
-    const { exp } = JSON.parse(jsonPayload);
-    return Date.now() >= exp * 1000;
+  useEffect(() => {
+    setIsLoggedIn(tokenService.isTokenValid());
+  }, [tokenService]);
+
+  const handleLogout = () => {
+    tokenService.token = null;
+    setIsLoggedIn(false);
+    navigate("/login");
   };
 
-  const getMovies = async () => {
+  const getMovies = useCallback(async () => {
+    console.log("Initiating API call to: /movies");
     try {
-      // const token = localStorage.getItem("jwtToken");
-      // console.log("Token in main component:", token);
-      // if (token) {
-      const response = await api.get("/api/v1/movies");
-      setMovies(response.data);
-      // } else {
-      //   localStorage.removeItem("jwtToken");
-      //   console.log("No token found, redirecting to login");
-      //   navigate("/login");
-      // }
+      const response = await MovieControllerService.getAllMovies();
+      console.log("The response in app.jsx in getMovies: ", response)
+      setMovies(response);
     } catch (err) {
       console.log(err);
-      // if (err.response && err.response.status === 401) {
-      //   console.log("Unauthorized access, redirecting to login");
-      //   navigate("/login");
-      // }
     }
-  };
-
-  const getMovieData = async (movieId) => {
-    try {
-      // if (isLoggedIn()) {
-      const response = await api.get(`/api/v1/movies/${movieId}`);
-      const singleMovie = response.data;
-      setMovie(singleMovie);
-      setReviews(singleMovie.reviews);
-      // } else {
-      //   navigate("/login");
-      // }
-    } catch (error) {
-      console.error(error);
-      // if (error.response && error.response.status === 401) {
-      //   navigate("/login");
-      // }
-    }
-  };
+  }, []);
 
   useEffect(() => {
     getMovies();
-  }, []);
+  }, [getMovies]);
+
+  const getMovieData = async (movieId) => {
+    try {
+      const response = await MovieControllerService.getMovieByImdbId(movieId);
+      setMovie(response);
+      setReviews(response.reviews);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="App">
-      <Header mode={mode} toggleColorMode={colorMode.ToggleColorMode} />
+      <Header mode={mode} toggleColorMode={toggleColorMode} />
+      <nav>
+        <Link to="/">Home</Link>
+        {isLoggedIn ? (
+          <>
+            <Link to="/tests">Movie Form</Link>
+            <button onClick={handleLogout}>Logout</button>
+          </>
+        ) : (
+          <>
+            <Link to="/login">Login</Link>
+            <Link to="/signup">Sign Up</Link>
+          </>
+        )}
+      </nav>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route path="/" element={<Home movies={movies} />}></Route>
-          <Route path="/Trailer/:ytTrailerId" element={<Trailer />}></Route>
-          <Route
-            path="/Reviews/:movieId"
-            element={
-              <Reviews
-                getMovieData={getMovieData}
-                movie={movie}
-                reviews={reviews}
-                setReviews={setReviews}
-              />
-            }
-          ></Route>
-          <Route path="*" element={<NotFound />}></Route>
-        </Route>
+        <Route path="/" element={<Home movies={movies} />} />
+        <Route path="/Trailer/:ytTrailerId" element={<Trailer />} />
+        <Route
+          path="/Reviews/:movieId"
+          element={
+            <Reviews
+              getMovieData={getMovieData}
+              movie={movie}
+              reviews={reviews}
+              setReviews={setReviews}
+            />
+          }
+        />
+        <Route path="/activate-account" element={<ActivateAccount />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );
 }
+
+App.propTypes = {
+  mode: PropTypes.oneOf(["light", "dark"]).isRequired,
+  toggleColorMode: PropTypes.func.isRequired,
+};
 
 export default App;

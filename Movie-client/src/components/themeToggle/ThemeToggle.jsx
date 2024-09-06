@@ -1,11 +1,11 @@
-import * as React from "react";
 import PropTypes from "prop-types";
+// import * as React from "react";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 
-import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
 import ModeNightRoundedIcon from "@mui/icons-material/ModeNightRounded";
+import WbSunnyRoundedIcon from "@mui/icons-material/WbSunnyRounded";
 
 function ToggleColorMode({ mode, toggleColorMode }) {
   return (
@@ -14,7 +14,7 @@ function ToggleColorMode({ mode, toggleColorMode }) {
         variant="text"
         onClick={toggleColorMode}
         size="small"
-        label="button to toggle theme"
+        aria-label="toggle theme"
         sx={{ minWidth: "32px", height: "32px", p: "4px" }}
       >
         {mode === "dark" ? (

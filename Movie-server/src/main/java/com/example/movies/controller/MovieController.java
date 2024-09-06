@@ -2,22 +2,24 @@ package com.example.movies.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.example.movies.dto.MovieWithReviewsDTO;
 import com.example.movies.dto.MovieWithReviewsDTO.ReviewDTO;
 import com.example.movies.model.Movies;
 import com.example.movies.service.MovieService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/movies")
+@Slf4j
 public class MovieController {
     private final MovieService movieService;
 
@@ -26,7 +28,9 @@ public class MovieController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Movies>> getAllMovies() {
+    public ResponseEntity<List<Movies>> getAllMovies(HttpServletRequest req) {
+        log.info("Accessing movie endpoint: {}", req.getRequestURI());
+        log.info("User: {}", SecurityContextHolder.getContext().getAuthentication().getName());
         return ResponseEntity.ok(movieService.getAllMovies());
     }
 
@@ -40,7 +44,7 @@ public class MovieController {
 
     private MovieWithReviewsDTO convertToDTO(Movies movie) {
         MovieWithReviewsDTO dto = new MovieWithReviewsDTO();
-        
+
         // Set movie fields
         dto.setImdbId(movie.getImdbId());
         dto.setTitle(movie.getTitle());
@@ -60,7 +64,8 @@ public class MovieController {
     }
 
     @PutMapping("/{imdbId}")
-    public ResponseEntity<Movies> updateMovie(@PathVariable String imdbId, @RequestBody Movies updatedMovie) {
+    public ResponseEntity<Movies> updateMovie(@PathVariable String imdbId,
+            @RequestBody Movies updatedMovie) {
         return movieService.updateMovie(imdbId, updatedMovie)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

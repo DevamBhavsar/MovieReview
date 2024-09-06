@@ -52,8 +52,8 @@ public class AuthenticationService {
                 .orElseThrow(() -> new IllegalStateException("Role USER not found"));
 
         // Create a new user with encoded password
-        var user
-                = User.builder().username(signUpRequest.getUsername()).email(signUpRequest.getEmail())
+        var user =
+                User.builder().username(signUpRequest.getUsername()).email(signUpRequest.getEmail())
                         .password(passwordEncoder.encode(signUpRequest.getPassword()))
                         .accountLocked(false).enabled(false)
                         .roles(Set.of(userRole)).build();
@@ -101,6 +101,7 @@ public class AuthenticationService {
     }
 
     public LoginResponse login(@Valid LoginRequest request) {
+        log.info("Login attempt for user: {}", request.getEmail());
         var auth = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),
                         request.getPassword()));
@@ -108,6 +109,7 @@ public class AuthenticationService {
         var user = ((User) auth.getPrincipal());
         claims.put("username", user.getUsername());
         var jwtToken = jwtService.generateToken(claims, user);
+        log.info("Token generated: {}", jwtToken);
         return LoginResponse.builder().token(jwtToken).build();
     }
 

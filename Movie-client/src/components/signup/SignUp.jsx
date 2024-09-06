@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { registerUser, getRoles } from "../../api/api";
-import { useNavigate } from "react-router-dom";
-import {
-  Avatar,
-  Button,
-  CssBaseline,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  Link,
-  Box,
-  Typography,
-  Container,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import {
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  CssBaseline,
+  FormControlLabel,
+  Link,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthControllerService } from "../../api-client";
 
 function Copyright(props) {
   return (
@@ -39,40 +36,38 @@ function Copyright(props) {
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const [roles, setRoles] = useState([]);
-  const [selectedRole, setSelectedRole] = useState("");
+  const [signupRequest, setSignupRequest] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [errorMsg, setErrorMsg] = useState([]);
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const rolesData = await getRoles();
-        setRoles(rolesData);
-      } catch (error) {
-        console.error("Error fetching roles:", error);
-      }
-    };
-    fetchRoles();
-  }, []);
-
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSignupRequest((prev) => ({ ...prev, [name]: value }));
+  };
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const userData = {
-      username: data.get("username"),
-      email: data.get("email"),
-      password: data.get("password"),
-      roles: [selectedRole],
-    };
+    setErrorMsg([]);
 
     try {
-      const response = await registerUser(userData);
+      const response = await AuthControllerService.registerUser(signupRequest);
       console.log("Registration successful:", response);
-      navigate("/");
+      navigate("/activate-account", { state: { email: signupRequest.email } });
     } catch (error) {
       console.error("Registration failed:", error);
+      if (error.response?.data) {
+        if (error.response.data.validationErrors) {
+          setErrorMsg(error.response.data.validationErrors);
+        } else {
+          setErrorMsg([error.response.data.errorMsg]);
+        }
+      } else {
+        setErrorMsg(["An unexpected error occurred"]);
+      }
     }
   };
-
   return (
     <Container
       component="main"
@@ -105,6 +100,13 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
+        {errorMsg.length > 0 && (
+          <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+            {errorMsg.map((msg, index) => (
+              <p key={index}>{msg}</p>
+            ))}
+          </Alert>
+        )}
         <Box
           component="form"
           noValidate
@@ -120,6 +122,8 @@ export default function SignUp() {
             name="username"
             autoComplete="username"
             autoFocus
+            value={signupRequest.username}
+            onChange={handleInputChange}
           />
           <TextField
             margin="normal"
@@ -129,6 +133,8 @@ export default function SignUp() {
             label="Email Address"
             name="email"
             autoComplete="email"
+            value={signupRequest.email}
+            onChange={handleInputChange}
           />
           <TextField
             margin="normal"
@@ -139,23 +145,9 @@ export default function SignUp() {
             type="password"
             id="password"
             autoComplete="new-password"
+            value={signupRequest.password}
+            onChange={handleInputChange}
           />
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="role-select-label">Role</InputLabel>
-            <Select
-              labelId="role-select-label"
-              id="role-select"
-              value={selectedRole}
-              label="Role"
-              onChange={(e) => setSelectedRole(e.target.value)}
-            >
-              {roles.map((role) => (
-                <MenuItem key={role} value={role}>
-                  {role}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <FormControlLabel
             control={<Checkbox value="allowExtraEmails" color="primary" />}
             label="I want to receive inspiration, marketing promotions and updates via email."

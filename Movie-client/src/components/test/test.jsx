@@ -1,27 +1,55 @@
+import MovieIcon from "@mui/icons-material/Movie";
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
+import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import MovieIcon from "@mui/icons-material/Movie";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { MenuItem, Select, InputLabel, FormControl } from "@mui/material";
-import { getAllMovies, updateMovie, isLoggedIn } from "../../api/api";
-import Header from "../header/Header";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import { TableVirtuoso } from "react-virtuoso";
+import { MovieControllerService } from "../../api-client";
+import Header from "../header/Header";
 
-export default function MovieFormCard({ mode, colorMode }) {
+const VirtuosoTableComponents = {
+  Scroller: React.forwardRef(function Scroller(props, ref) {
+    return <TableContainer component={Paper} {...props} ref={ref} />;
+  }),
+  Table: function Table(props) {
+    return (
+      <Table
+        {...props}
+        sx={{ borderCollapse: "separate", tableLayout: "fixed" }}
+      />
+    );
+  },
+  TableHead,
+  TableRow,
+  TableBody: React.forwardRef(function VirtuosoTableBody(props, ref) {
+    return <TableBody {...props} ref={ref} />;
+  }),
+};
+
+VirtuosoTableComponents.Scroller.displayName = "VirtuosoScroller";
+VirtuosoTableComponents.Table.displayName = "VirtuosoTable";
+VirtuosoTableComponents.TableBody.displayName = "VirtuosoTableBody";
+
+const MovieFormCard = ({ mode, colorMode }) => {
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [editedRows, setEditedRows] = useState({});
@@ -29,19 +57,17 @@ export default function MovieFormCard({ mode, colorMode }) {
 
   useEffect(() => {
     const fetchMovies = async () => {
-      if (isLoggedIn()) {
-        try {
-          const data = await getAllMovies();
-          setMovies(data);
-          if (data.length > 0) {
-            setSelectedMovie(data[0]);
-          }
-          console.log("Fetched movies:", data);
-        } catch (error) {
-          console.error("Error fetching movie data:", error);
+      try {
+        const response = await MovieControllerService.getAllMovies();
+        setMovies(response);
+        if (response.length > 0) {
+          setSelectedMovie(response[0]);
         }
-      } else {
-        navigate("/login");
+      } catch (error) {
+        console.error("Error fetching movie data:", error);
+        if (error.response && error.response.status === 401) {
+          navigate("/login");
+        }
       }
     };
     fetchMovies();
@@ -63,7 +89,11 @@ export default function MovieFormCard({ mode, colorMode }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await updateMovie(selectedMovie);
+      const response = await MovieControllerService.updateMovie(
+        selectedMovie.imdbId,
+        selectedMovie
+      );
+      setSelectedMovie(response);
       alert("Movie updated successfully!");
     } catch (error) {
       console.error("Error updating movie:", error);
@@ -74,47 +104,24 @@ export default function MovieFormCard({ mode, colorMode }) {
   const renderInputFields = () => {
     if (!selectedMovie) return null;
 
-    const entries = Object.entries(selectedMovie).map(([key, value]) => {
-      if (typeof value === "object" && !Array.isArray(value)) {
-        return (
+    return Object.entries(selectedMovie).map(([key, value]) => {
+      const fieldValue =
+        typeof value === "object" && value !== null
+          ? JSON.stringify(value)
+          : value;
+      return (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={key}>
           <TextField
-            key={key}
             name={key}
             label={key}
-            value={value.timestamp || ""}
+            value={fieldValue || ""}
             fullWidth
             margin="normal"
             onChange={handleInputChange}
           />
-        );
-      } else if (Array.isArray(value)) {
-        return (
-          <TextField
-            key={key}
-            name={key}
-            label={key}
-            value={value.join(", ")}
-            fullWidth
-            margin="normal"
-            onChange={handleInputChange}
-          />
-        );
-      } else {
-        return (
-          <TextField
-            key={key}
-            name={key}
-            label={key}
-            value={value || ""}
-            fullWidth
-            margin="normal"
-            onChange={handleInputChange}
-          />
-        );
-      }
+        </Grid>
+      );
     });
-
-    return entries;
   };
 
   const columns = [
@@ -127,47 +134,24 @@ export default function MovieFormCard({ mode, colorMode }) {
     { width: 120, label: "Backdrop", dataKey: "backdrop" },
   ];
 
-  const VirtuosoTableComponents = {
-    Scroller: React.forwardRef((props, ref) => (
-      <TableContainer component={Paper} {...props} ref={ref} />
-    )),
-    Table: (props) => (
-      <Table
-        {...props}
-        sx={{ borderCollapse: "separate", tableLayout: "fixed" }}
-      />
-    ),
-    TableHead: React.forwardRef((props, ref) => (
-      <TableHead {...props} ref={ref} />
-    )),
-    TableRow,
-    TableBody: React.forwardRef((props, ref) => (
-      <TableBody {...props} ref={ref} />
-    )),
-  };
-
-  function fixedHeaderContent() {
-    return (
-      <TableRow>
-        {columns.map((column) => (
-          <TableCell
-            key={column.dataKey}
-            variant="head"
-            align={column.numeric || false ? "right" : "left"}
-            style={{ width: column.width }}
-            sx={{
-              backgroundColor: "background.paper",
-            }}
-          >
-            {column.label}
-          </TableCell>
-        ))}
-        <TableCell variant="head" align="center">
-          Actions
+  const fixedHeaderContent = () => (
+    <TableRow>
+      {columns.map((column) => (
+        <TableCell
+          key={column.dataKey}
+          variant="head"
+          align={column.numeric ? "right" : "left"}
+          style={{ width: column.width }}
+          sx={{ backgroundColor: "background.paper" }}
+        >
+          {column.label}
         </TableCell>
-      </TableRow>
-    );
-  }
+      ))}
+      <TableCell variant="head" align="center">
+        Actions
+      </TableCell>
+    </TableRow>
+  );
 
   const handleCellEdit = (imdbId, dataKey, value) => {
     setEditedRows((prev) => ({
@@ -185,10 +169,13 @@ export default function MovieFormCard({ mode, colorMode }) {
       ...editedRows[imdbId],
     };
     try {
-      await updateMovie(updatedMovie);
-      setMovies(movies.map((m) => (m.imdbId === imdbId ? updatedMovie : m)));
+      const response = await MovieControllerService.updateMovie(
+        imdbId,
+        updatedMovie
+      );
+      setMovies(movies.map((m) => (m.imdbId === imdbId ? response : m)));
       setEditedRows((prev) => {
-        const { [imdbId]: _, ...rest } = prev;
+        const { [imdbId]: omitted, ...rest } = prev;
         return rest;
       });
       alert("Movie updated successfully!");
@@ -198,31 +185,29 @@ export default function MovieFormCard({ mode, colorMode }) {
     }
   };
 
-  function rowContent(_index, row) {
-    return (
-      <React.Fragment>
-        {columns.map((column) => (
-          <TableCell
-            key={column.dataKey}
-            align={column.numeric || false ? "right" : "left"}
-          >
-            <TextField
-              value={
-                editedRows[row.imdbId]?.[column.dataKey] ?? row[column.dataKey]
-              }
-              onChange={(e) =>
-                handleCellEdit(row.imdbId, column.dataKey, e.target.value)
-              }
-              fullWidth
-            />
-          </TableCell>
-        ))}
-        <TableCell align="center">
-          <Button onClick={() => handleSaveRow(row.imdbId)}>Save</Button>
+  const rowContent = (_index, row) => (
+    <React.Fragment>
+      {columns.map((column) => (
+        <TableCell
+          key={column.dataKey}
+          align={column.numeric ? "right" : "left"}
+        >
+          <TextField
+            value={
+              editedRows[row.imdbId]?.[column.dataKey] ?? row[column.dataKey]
+            }
+            onChange={(e) =>
+              handleCellEdit(row.imdbId, column.dataKey, e.target.value)
+            }
+            fullWidth
+          />
         </TableCell>
-      </React.Fragment>
-    );
-  }
+      ))}
+      <TableCell align="center">
+        <Button onClick={() => handleSaveRow(row.imdbId)}>Save</Button>
+      </TableCell>
+    </React.Fragment>
+  );
 
   return (
     <>
@@ -266,11 +251,7 @@ export default function MovieFormCard({ mode, colorMode }) {
             onSubmit={handleSubmit}
           >
             <Grid container spacing={2}>
-              {renderInputFields()?.map((field, index) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                  {field}
-                </Grid>
-              ))}
+              {renderInputFields()}
             </Grid>
             <Button
               type="submit"
@@ -294,4 +275,13 @@ export default function MovieFormCard({ mode, colorMode }) {
       </Container>
     </>
   );
-}
+};
+
+MovieFormCard.propTypes = {
+  mode: PropTypes.string.isRequired,
+  colorMode: PropTypes.shape({
+    ToggleColorMode: PropTypes.func.isRequired,
+  }).isRequired,
+};
+
+export default MovieFormCard;

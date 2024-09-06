@@ -1,15 +1,16 @@
+import { ThemeProvider, createTheme } from "@mui/material";
+import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import SignUp from "./components/signup/SignUp";
-import MovieFormCard from "./components/test/test";
-import { ThemeProvider, createTheme } from "@mui/material";
 import DosisFont from "../Fonts/Dosis/Dosis-VariableFont_wght.ttf";
+import App from "./App";
+import ActivateAccount from "./components/activateAccount/ActivateAccount";
 import LogIn from "./components/login/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SignUp from "./components/signup/SignUp";
+import MovieFormCard from "./components/test/test";
+import "./index.css";
 
 const getDesignTokens = (mode) => ({
   palette: {
@@ -55,10 +56,17 @@ function ThemedApp() {
         <Routes>
           <Route
             path="/*"
-            element={<App colorMode={colorMode} mode={mode} />}
+            element={
+              <App
+                colorMode={colorMode}
+                mode={mode}
+                toggleColorMode={colorMode.ToggleColorMode}
+              />
+            }
           />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<LogIn />} />
+          <Route path="/activate-account" element={<ActivateAccount />} />
           <Route
             path="/tests"
             element={

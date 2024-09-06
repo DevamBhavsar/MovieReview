@@ -1,15 +1,14 @@
-import React from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { isLoggedIn } from "../api/api";
+import PropTypes from "prop-types";
+import { Navigate } from "react-router-dom";
+import TokenService from "../api-client/token/tokenService";
 
 const ProtectedRoute = ({ children }) => {
-  const location = useLocation();
+  const tokenService = new TokenService();
+  return tokenService.isTokenValid() ? children : <Navigate to="/login" />;
+};
 
-  if (!isLoggedIn()) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  return children;
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default ProtectedRoute;
