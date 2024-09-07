@@ -3,11 +3,13 @@ package com.example.movies.security.service;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,7 +67,7 @@ public class AuthenticationService {
         try {
             sendValidationEmail(user);
             log.info("Validation email sent for user: {}", user.getUsername());
-        } catch (Exception e) {
+        } catch (MessagingException | RuntimeException e) {
             log.error("Failed to send validation email for user: {}", user.getUsername(), e);
         }
     }
@@ -101,25 +103,23 @@ public class AuthenticationService {
     }
 
     public LoginResponse login(@Valid LoginRequest request) {
-        log.info("Login attempt for user: {}", request.getEmail());
-        var auth = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),
-                        request.getPassword()));
-        var claims = new HashMap<String, Object>();
-        var user = ((User) auth.getPrincipal());
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        User user = (User) auth.getPrincipal();
+        Map<String, Object> claims = new HashMap<>();
         claims.put("username", user.getUsername());
-        var jwtToken = jwtService.generateToken(claims, user);
-        log.info("Token generated: {}", jwtToken);
+        String jwtToken = jwtService.generateToken(claims, user);
+        log.info("Generated token for user {}: {}", user.getEmail(), jwtToken);
         return LoginResponse.builder().token(jwtToken).build();
     }
 
     @Transactional
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new InvalidTokenException("Invalid token"));
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
             sendValidationEmail(savedToken.getUser());
-            throw new RuntimeException("Activation Token expired. New token sent to email");
+            throw new TokenExpiredException("Activation Token expired. New token sent to email");
         }
         var user = userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -127,5 +127,19 @@ public class AuthenticationService {
         userRepository.save(user);
         savedToken.setValidatedAt(LocalDateTime.now());
         tokenRepository.save(savedToken);
+    }
+}
+
+
+class InvalidTokenException extends RuntimeException {
+    public InvalidTokenException(String message) {
+        super(message);
+    }
+}
+
+
+class TokenExpiredException extends RuntimeException {
+    public TokenExpiredException(String message) {
+        super(message);
     }
 }

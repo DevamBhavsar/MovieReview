@@ -80,7 +80,8 @@ public class User implements UserDetails, Principal {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return this.roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toSet());
+    return this.roles.stream().map(r -> new SimpleGrantedAuthority(r.getName()))
+        .collect(Collectors.toSet());
   }
 
   @Override
@@ -107,4 +108,11 @@ public class User implements UserDetails, Principal {
   public String getName() {
     return email;
   }
+
+  @Override
+  public String getUsername() {
+    return email;
+  }
+
 }
+

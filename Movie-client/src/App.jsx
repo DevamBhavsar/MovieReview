@@ -19,7 +19,11 @@ function App({ mode, toggleColorMode }) {
   const tokenService = useMemo(() => new TokenService(), []);
 
   useEffect(() => {
-    setIsLoggedIn(tokenService.isTokenValid());
+    const checkAuth = async () => {
+      const isValid = await tokenService.isTokenValid();
+      setIsLoggedIn(isValid);
+    };
+    checkAuth();
   }, [tokenService]);
 
   const handleLogout = () => {
@@ -32,10 +36,17 @@ function App({ mode, toggleColorMode }) {
     console.log("Initiating API call to: /movies");
     try {
       const response = await MovieControllerService.getAllMovies();
-      console.log("The response in app.jsx in getMovies: ", response)
-      setMovies(response);
+      console.log("Raw response:", response);
+      if (response && Array.isArray(response)) {
+        console.log("Movies data received:", response);
+        setMovies(response);
+      } else if (response === undefined) {
+        console.warn("Empty response received from server");
+      } else {
+        console.error("Unexpected response format:", response);
+      }
     } catch (err) {
-      console.log(err);
+      console.error("Error fetching movies:", err);
     }
   }, []);
 

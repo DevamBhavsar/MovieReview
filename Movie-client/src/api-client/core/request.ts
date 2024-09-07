@@ -218,6 +218,14 @@ export const sendRequest = async (
   headers: Headers,
   onCancel: OnCancel
 ): Promise<Response> => {
+  if (config.FETCH) {
+    return config.FETCH(url, {
+      method: options.method,
+      headers,
+      body: body ?? formData,
+    });
+  }
+
   const controller = new AbortController();
 
   const request: RequestInit = {
@@ -251,21 +259,15 @@ export const getResponseHeader = (
 
 export const getResponseBody = async (response: Response): Promise<any> => {
   if (response.status !== 204) {
-    try {
-      const contentType = response.headers.get("Content-Type");
-      if (contentType) {
-        const jsonTypes = ["application/json", "application/problem+json"];
-        const isJSON = jsonTypes.some((type) =>
-          contentType.toLowerCase().startsWith(type)
-        );
-        if (isJSON) {
-          return await response.json();
-        } else {
-          return await response.text();
-        }
+    const text = await response.text();
+    console.log("Raw response text:", text);
+    if (text) {
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+        return text;
       }
-    } catch (error) {
-      console.error(error);
     }
   }
   return undefined;
@@ -343,7 +345,9 @@ export const request = <T>(
           headers,
           onCancel
         );
+        console.log("Raw API response:", response);
         const responseBody = await getResponseBody(response);
+        console.log("Parsed response body:", responseBody);
         const responseHeader = getResponseHeader(
           response,
           options.responseHeader

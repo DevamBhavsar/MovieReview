@@ -1,12 +1,8 @@
 package com.example.movies.config;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,16 +10,15 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import com.example.movies.security.SpringSecurityAuditorAware;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class BeansConfig {
 
     private final UserDetailsService userDetailsService;
@@ -44,7 +39,6 @@ public class BeansConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 
@@ -53,26 +47,10 @@ public class BeansConfig {
         return new SpringSecurityAuditorAware();
     }
 
-    @Bean
-    public CorsFilter corsFilter() {
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        final CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
-        config.setAllowedHeaders(Arrays.asList(
-                HttpHeaders.ORIGIN,
-                HttpHeaders.CONTENT_TYPE,
-                HttpHeaders.ACCEPT,
-                HttpHeaders.AUTHORIZATION));
-        config.setAllowedMethods(Arrays.asList(
-                "GET",
-                "POST",
-                "DELETE",
-                "PUT",
-                "PATCH"));
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-
-    }
-
+    // public Optional<User> findByEmail(String email) {
+    // // Your existing query implementation here
+    // Optional<User> user = Optional.empty(); // Replace with actual query
+    // log.info("User found in database for email {}: {}", email, user.isPresent());
+    // return user;
+    // }
 }

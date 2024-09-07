@@ -52,7 +52,6 @@ export default function LogIn() {
 
     try {
       const response = await AuthControllerService.login(authRequest);
-      console.log("Login response:", response);
       tokenService.token = response.token;
       navigate("/");
     } catch (error) {
