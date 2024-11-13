@@ -21,20 +21,20 @@ import {
 } from "@mui/material";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { TableVirtuoso } from "react-virtuoso";
 import { MovieControllerService } from "../../api-client";
+import TokenService from "../../api-client/token/tokenService";
 import Header from "../header/Header";
-
+import LoadingScreen from "../loadingScreen/LoadingScreen";
 const VirtuosoTableComponents = {
   Scroller: React.forwardRef(function Scroller(props, ref) {
     return <TableContainer component={Paper} {...props} ref={ref} />;
   }),
-  Table: function Table(props) {
+  VirtuosoTable: function VirtuosoTable(props) {
     return (
-      <Table
+      <table
         {...props}
-        sx={{ borderCollapse: "separate", tableLayout: "fixed" }}
+        style={{ borderCollapse: "separate", tableLayout: "fixed" }}
       />
     );
   },
@@ -44,34 +44,62 @@ const VirtuosoTableComponents = {
     return <TableBody {...props} ref={ref} />;
   }),
 };
-
+const tokenService = new TokenService();
 VirtuosoTableComponents.Scroller.displayName = "VirtuosoScroller";
-VirtuosoTableComponents.Table.displayName = "VirtuosoTable";
+VirtuosoTableComponents.VirtuosoTable.displayName = "VirtuosoTable";
 VirtuosoTableComponents.TableBody.displayName = "VirtuosoTableBody";
+
+// Define the columns array before it's used
+
+const columns = [
+  { width: 120, label: "IMDB ID", dataKey: "imdbId" },
+  { width: 200, label: "Title", dataKey: "title" },
+  { width: 120, label: "Release Date", dataKey: "releaseDate" },
+  { width: 120, label: "Trailer Link", dataKey: "trailerLink" },
+  { width: 120, label: "Poster", dataKey: "poster" },
+  { width: 120, label: "Genres", dataKey: "genres" },
+  { width: 120, label: "Backdrop", dataKey: "backdrop" },
+];
 
 const MovieFormCard = ({ mode, colorMode }) => {
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [editedRows, setEditedRows] = useState({});
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         const response = await MovieControllerService.getAllMovies();
         setMovies(response);
-        if (response.length > 0) {
-          setSelectedMovie(response[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching movie data:", error);
-        if (error.response && error.response.status === 401) {
-          navigate("/login");
-        }
+        setIsLoading(false);
+      } catch (err) {
+        setError("Failed to fetch movies");
+        setIsLoading(false);
       }
     };
+
     fetchMovies();
-  }, [navigate]);
+  }, []);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const isValid = await tokenService.isTokenValid();
+      console.log("IS valid : ", isValid);
+      setIsLoggedIn(isValid);
+    };
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   const handleMovieSelect = (event) => {
     const selectedId = event.target.value;
@@ -124,16 +152,6 @@ const MovieFormCard = ({ mode, colorMode }) => {
     });
   };
 
-  const columns = [
-    { width: 120, label: "IMDB ID", dataKey: "imdbId" },
-    { width: 200, label: "Title", dataKey: "title" },
-    { width: 120, label: "Release Date", dataKey: "releaseDate" },
-    { width: 120, label: "Trailer Link", dataKey: "trailerLink" },
-    { width: 120, label: "Poster", dataKey: "poster" },
-    { width: 120, label: "Genres", dataKey: "genres" },
-    { width: 120, label: "Backdrop", dataKey: "backdrop" },
-  ];
-
   const fixedHeaderContent = () => (
     <TableRow>
       {columns.map((column) => (
@@ -175,7 +193,7 @@ const MovieFormCard = ({ mode, colorMode }) => {
       );
       setMovies(movies.map((m) => (m.imdbId === imdbId ? response : m)));
       setEditedRows((prev) => {
-        const { [imdbId]: omitted, ...rest } = prev;
+        const { [imdbId]: _, ...rest } = prev;
         return rest;
       });
       alert("Movie updated successfully!");
@@ -235,7 +253,6 @@ const MovieFormCard = ({ mode, colorMode }) => {
               value={selectedMovie?.imdbId || ""}
               onChange={handleMovieSelect}
               fullWidth
-              disabled={movies.length === 0}
             >
               {movies.map((movie) => (
                 <MenuItem key={movie.imdbId} value={movie.imdbId}>
@@ -279,9 +296,7 @@ const MovieFormCard = ({ mode, colorMode }) => {
 
 MovieFormCard.propTypes = {
   mode: PropTypes.string.isRequired,
-  colorMode: PropTypes.shape({
-    ToggleColorMode: PropTypes.func.isRequired,
-  }).isRequired,
+  colorMode: PropTypes.object.isRequired,
 };
 
 export default MovieFormCard;

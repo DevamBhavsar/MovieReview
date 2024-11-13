@@ -150,7 +150,7 @@ export default function SignUp() {
           />
           <FormControlLabel
             control={<Checkbox value="allowExtraEmails" color="primary" />}
-            label="I want to receive inspiration, marketing promotions and updates via email."
+            label="I agree to all TOS."
           />
           <Button
             type="submit"

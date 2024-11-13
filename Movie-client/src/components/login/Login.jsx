@@ -155,6 +155,9 @@ export default function LogIn() {
             <Link href="/signup" variant="body2">
               Don`&apos;`t have an account yet? Sign Up
             </Link>
+            <Link href="/" variant="body2">
+            Forgot password ?
+            </Link>
           </Box>
         </Box>
       </Box>

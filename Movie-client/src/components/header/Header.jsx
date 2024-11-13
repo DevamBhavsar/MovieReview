@@ -11,8 +11,8 @@ import Drawer from "@mui/material/Drawer";
 import MenuItem from "@mui/material/MenuItem";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { Link as RouterLink } from "react-router-dom";
 import ToggleColorMode from "../themeToggle/ThemeToggle";
-
 const logoStyle = {
   width: "140px",
   height: "auto",
@@ -26,19 +26,19 @@ function Header({ mode, toggleColorMode }) {
     setOpen(newOpen);
   };
 
-  const scrollToSection = (sectionId) => {
-    const sectionElement = document.getElementById(sectionId);
-    const offset = 128;
-    if (sectionElement) {
-      const targetScroll = sectionElement.offsetTop - offset;
-      sectionElement.scrollIntoView({ behavior: "smooth" });
-      window.scrollTo({
-        top: targetScroll,
-        behavior: "smooth",
-      });
-      setOpen(false);
-    }
-  };
+  // const scrollToSection = (sectionId) => {
+  //   const sectionElement = document.getElementById(sectionId);
+  //   const offset = 128;
+  //   if (sectionElement) {
+  //     const targetScroll = sectionElement.offsetTop - offset;
+  //     sectionElement.scrollIntoView({ behavior: "smooth" });
+  //     window.scrollTo({
+  //       top: targetScroll,
+  //       behavior: "smooth",
+  //     });
+  //     setOpen(false);
+  //   }
+  // };
 
   return (
     <div>
@@ -96,7 +96,11 @@ function Header({ mode, toggleColorMode }) {
                     Home
                   </Typography>
                 </MenuItem>
-                <MenuItem href="/dashboard" sx={{ py: "6px", px: "12px" }}>
+                <MenuItem
+                  component={RouterLink}
+                  to="/dashboard"
+                  sx={{ py: "6px", px: "12px" }}
+                >
                   <Typography variant="body2" color="text.primary">
                     Dashboard
                   </Typography>
