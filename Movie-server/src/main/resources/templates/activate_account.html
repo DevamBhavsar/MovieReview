@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Activation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #3498db;
+            margin-top: 25px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        .code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            letter-spacing: 2px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to Our Movie Platform!</h2>
+        <p>Dear <span th:text="${username}" style="font-weight: bold;"></span>,</p>
+        <p>Thank you for creating an account with us. We're excited to have you join our community of movie enthusiasts!</p>
+        <p>To ensure the security of your account, we need to verify your email address. Please use one of the following methods to activate your account:</p>
+        <h3>Option 1: Click the Activation Link</h3>
+        <p>Simply click the button below to activate your account:</p>
+        <a th:href="${confirmationUrl}" class="button">Activate My Account</a>
+        <h3>Option 2: Enter the Activation Code</h3>
+        <p>If the button doesn't work, you can manually enter this activation code on our website:</p>
+        <p class="code" th:text="${activationCode}"></p>
+        <p>This code will expire in 24 hours for security reasons.</p>
+        <p>Once your account is activated, you'll have full access to our platform, where you can:</p>
+        <ul>
+            <li>Discover new movies and TV shows</li>
+            <li>Rate and review your favorite content</li>
+            <li>Create and share watchlists</li>
+            <li>Connect with other movie lovers</li>
+        </ul>
+        <p>If you didn't create an account with us, please ignore this email or contact our support team.</p>
+        <p>We're looking forward to seeing you on our platform!</p>
+        <p>Best regards,<br><strong>The Movie Platform Team</strong></p>
+    </div>
+</body>
+</html>
