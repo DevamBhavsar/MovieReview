@@ -34,7 +34,6 @@ public class MovieController {
         log.info("Accessing getAllMovies endpoint");
         List<Movies> movies = movieService.getAllMovies();
         log.info("Returning {} movies", movies.size());
-        log.info("Response body: {}", movies);
         return ResponseEntity.ok(movies);
     }
 

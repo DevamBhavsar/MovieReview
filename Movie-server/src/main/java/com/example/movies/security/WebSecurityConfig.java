@@ -41,7 +41,8 @@ public class WebSecurityConfig {
                                                 UsernamePasswordAuthenticationFilter.class)
                                 .cors(withDefaults()).csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests(req -> {
-                                        req.requestMatchers("/auth/**").permitAll()
+                                        req.requestMatchers("/auth/**", "/cad/**", "/tests/**")
+                                                        .permitAll()
                                                         .requestMatchers("/movies/**")
                                                         .authenticated()
                                                         .anyRequest().authenticated();

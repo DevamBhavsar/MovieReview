@@ -34,6 +34,7 @@ public class JwtService {
 
     public String extractEmail(String token) {
         String email = extractClaims(token, Claims::getSubject);
+        // log.info("Token claims :", extractClaims(token, Claims::getClass));
         log.info("Extracted email from token: {}", email);
         return email;
     }
@@ -96,6 +97,7 @@ public class JwtService {
     }
 
     private Date extractExpiration(String token) {
+
         return extractClaims(token, Claims::getExpiration);
     }
 }

@@ -1,21 +1,26 @@
+// src/App.jsx
+
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { MovieControllerService } from "./api-client/services/MovieControllerService";
 import TokenService from "./api-client/token/tokenService";
 import "./App.css";
 import ActivateAccount from "./components/activateAccount/ActivateAccount";
+import CadPage from "./components/cad/CadPage"; // Import the CadPage component
+import DashBoard from "./components/dashboard/Dashboard";
 import Header from "./components/header/Header";
 import Home from "./components/home/Home";
 import NotFound from "./components/notFound/NotFound";
 import Reviews from "./components/reviews/Reviews";
 import Trailer from "./components/trailer/Trailer";
+
 function App({ mode, toggleColorMode }) {
   const [movies, setMovies] = useState([]);
   const [movie, setMovie] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const tokenService = useMemo(() => new TokenService(), []);
 
   useEffect(() => {
@@ -26,11 +31,11 @@ function App({ mode, toggleColorMode }) {
     checkAuth();
   }, [tokenService]);
 
-  const handleLogout = () => {
-    tokenService.token = null;
-    setIsLoggedIn(false);
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   tokenService.token = null;
+  //   setIsLoggedIn(false);
+  //   navigate("/login");
+  // };
 
   const getMovies = useCallback(async () => {
     console.log("Initiating API call to: /movies");
@@ -67,20 +72,6 @@ function App({ mode, toggleColorMode }) {
   return (
     <div className="App">
       <Header mode={mode} toggleColorMode={toggleColorMode} />
-      <nav>
-        <Link to="/">Home</Link>
-        {isLoggedIn ? (
-          <>
-            <Link to="/tests">Movie Form</Link>
-            <button onClick={handleLogout}>Logout</button>
-          </>
-        ) : (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/signup">Sign Up</Link>
-          </>
-        )}
-      </nav>
       <Routes>
         <Route path="/" element={<Home movies={movies} />} />
         <Route path="/Trailer/:ytTrailerId" element={<Trailer />} />
@@ -96,6 +87,8 @@ function App({ mode, toggleColorMode }) {
           }
         />
         <Route path="/activate-account" element={<ActivateAccount />} />
+        <Route path="/cad" element={<CadPage />} />{" "}
+        <Route path="/dashboard" element={<DashBoard />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

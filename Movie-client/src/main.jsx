@@ -40,7 +40,7 @@ const getDesignTokens = (mode) => ({
 });
 
 function ThemedApp() {
-  const [mode, setMode] = React.useState("light");
+  const [mode, setMode] = React.useState("dark");
   const colorMode = React.useMemo(
     () => ({
       ToggleColorMode: () => {
